@@ -66,9 +66,8 @@ class ApiService {
 
     List<ClimbingRoute> climbs = (result.data?['areas'] as List<dynamic>)
         .expand((area) =>
-        (area['climbs'] as List<dynamic>).map((climb) =>
-            ClimbingRoute.fromJson(climb))
-    )
+        (area['climbs'] as List<dynamic>)
+            .map((climb) => ClimbingRoute.fromJson(climb)))
         .toList();
 
     return climbs;
@@ -101,8 +100,56 @@ class ApiService {
       throw Exception('Failed to load climb details');
     }
 
-    final Map<String, dynamic> json = result.data?['climb'][0] as Map<String, dynamic>;
+    final Map<String, dynamic> json =
+    result.data?['climb'][0] as Map<String, dynamic>;
     return ClimbingRoute.fromJson(json);
   }
+
+  Future<List<String>> getNearbyAreas(double lat, double lng) async {
+    final QueryOptions options = QueryOptions(
+      document: gql('''
+      query GetNearbyAreas(\$lat: Float!, \$lng: Float!) {
+        cragsNear(
+          lnglat: { lat: \$lat, lng: \$lng }
+          includeCrags: true
+          maxDistance: 15000
+        ) {
+          crags {
+            areaName
+          }
+        }
+      }
+    '''),
+      variables: <String, dynamic>{
+        'lat': lat,
+        'lng': lng,
+      },
+    );
+
+    final QueryResult result = await client.query(options);
+
+    if (result.hasException) {
+      print(result.exception.toString());
+      throw Exception('Failed to load nearby areas');
+    }
+
+    final List<dynamic> cragsNear = result.data?['cragsNear'] as List<dynamic>;
+    if (cragsNear.isNotEmpty) {
+      final List<dynamic> crags = cragsNear[0]['crags'] as List<dynamic>;
+      List<String> areaNames = crags
+          .map<String>((crag) => crag['areaName'] as String)
+          .toList();
+      return areaNames;
+    }
+
+    throw Exception('No nearby areas found');
+  }
+
+
+
+
+
+
+
 
 }
