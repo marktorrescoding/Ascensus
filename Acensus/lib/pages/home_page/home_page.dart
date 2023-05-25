@@ -8,6 +8,7 @@ import 'package:openbeta/services/get_user_location_service.dart';
 import 'package:openbeta/pages/route_details_page.dart';
 import 'package:openbeta/pages/nearby_areas_page.dart';
 import 'package:graphql/client.dart';
+import 'package:openbeta/pages/home_page/search_bar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -27,7 +28,9 @@ class _HomePageState extends State<HomePage> {
   Future<List<ClimbingRoute>>? _localSearchResult;
   List<String>? _nearbyAreas;
 
-  _HomePageState() {
+  @override
+  void initState() {
+    super.initState();
     httpLink = HttpLink('https://api.openbeta.io/graphql');
     climbService = ClimbService(httpLink);
     areaService = AreaService(httpLink);
@@ -67,76 +70,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('ASCENSUS'),
-      ),
-      body: Column(
-        children: [
-          // API Search Bar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _apiController,
-              onSubmitted: (_) => _searchApi(),
-              decoration: InputDecoration(
-                labelText: 'Search API',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: _searchApi,
-                ),
-              ),
-            ),
-          ),
-          // Local Database Search Bar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _localController,
-              onSubmitted: (_) => _searchLocal(),
-              decoration: InputDecoration(
-                labelText: 'Search Local',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: _searchLocal,
-                ),
-              ),
-            ),
-          ),
-          // Button for getting nearby areas
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: _getNearbyAreas,
-              child: Text('Areas Near Me'),
-            ),
-          ),
-          // Display nearby areas
-          if (_nearbyAreas != null) ...[
-            for (final area in _nearbyAreas!) Text(area),
-          ],
-          Expanded(
-            child: FutureBuilder<List<ClimbingRoute>>(
-              future: _apiSearchResult,
-              builder: _buildListView,
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<ClimbingRoute>>(
-              future: _localSearchResult,
-              builder: _buildListView,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildListView(BuildContext context, AsyncSnapshot<List<ClimbingRoute>> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {
       return Center(child: CircularProgressIndicator());
@@ -168,6 +101,82 @@ class _HomePageState extends State<HomePage> {
         },
       );
     }
-    return SizedBox.shrink();  // Return an empty widget when there's no data yet
+    return SizedBox.shrink(); // Return an empty widget when there's no data yet
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('ASCENSUS'),
+      ),
+      body: Column(
+        children: [
+          CustomSearchBar(
+            labelText: 'Search API',
+            controller: _apiController,
+            onPressed: _searchApi,
+          ),
+          CustomSearchBar(
+            labelText: 'Search Local',
+            controller: _localController,
+            onPressed: _searchLocal,
+          ),
+          Button(
+            text: 'Areas Near Me',
+            onPressed: _getNearbyAreas,
+          ),
+          if (_nearbyAreas != null) NearbyAreas(areas: _nearbyAreas!),
+          Expanded(
+            child: FutureBuilder<List<ClimbingRoute>>(
+              future: _apiSearchResult,
+              builder: _buildListView,
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<ClimbingRoute>>(
+              future: _localSearchResult,
+              builder: _buildListView,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Button extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const Button({
+    required this.text,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(text),
+      ),
+    );
+  }
+}
+
+class NearbyAreas extends StatelessWidget {
+  final List<String> areas;
+
+  const NearbyAreas({required this.areas});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (final area in areas) Text(area),
+      ],
+    );
   }
 }

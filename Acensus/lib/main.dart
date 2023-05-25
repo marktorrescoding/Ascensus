@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:openbeta/pages/home_page.dart';
+import 'package:openbeta/pages/home_page/home_page.dart';
 import 'package:openbeta/services/test_connection_service.dart';
 import 'package:graphql/client.dart';
 
