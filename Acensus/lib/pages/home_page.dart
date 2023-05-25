@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:openbeta/models/climbing_route.dart';
-import 'package:openbeta/services/api_service.dart';
+import 'package:openbeta/services/climb_service.dart';
+import 'package:openbeta/services/area_service.dart';
+import 'package:openbeta/services/test_connection_service.dart';
 import 'package:openbeta/services/local_database_service.dart';
 import 'package:openbeta/services/get_user_location_service.dart';
 import 'package:openbeta/pages/route_details_page.dart';
 import 'package:openbeta/pages/nearby_areas_page.dart';
-
+import 'package:graphql/client.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,7 +15,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ApiService apiService = ApiService();
+  late HttpLink httpLink;
+  late ClimbService climbService;
+  late AreaService areaService;
+  late TestConnectionService testConnectionService;
   final LocalDatabase localDatabase = LocalDatabase.instance;
   final LocationService locationService = LocationService();
   final TextEditingController _apiController = TextEditingController();
@@ -22,9 +27,16 @@ class _HomePageState extends State<HomePage> {
   Future<List<ClimbingRoute>>? _localSearchResult;
   List<String>? _nearbyAreas;
 
+  _HomePageState() {
+    httpLink = HttpLink('https://api.openbeta.io/graphql');
+    climbService = ClimbService(httpLink);
+    areaService = AreaService(httpLink);
+    testConnectionService = TestConnectionService(httpLink);
+  }
+
   void _searchApi() {
     setState(() {
-      _apiSearchResult = apiService.getClimbsForArea(_apiController.text);
+      _apiSearchResult = climbService.getClimbsForArea(_apiController.text);
     });
     _apiController.clear();
   }
@@ -40,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     final location = await locationService.getCurrentLocation();
     if (location != null) {
       print('User Location: Latitude=${location.latitude}, Longitude=${location.longitude}');
-      final areas = await apiService.getNearbyAreas(location.latitude, location.longitude);
+      final areas = await areaService.getNearbyAreas(location.latitude, location.longitude);
       if (areas != null && areas.isNotEmpty) {
         print('Nearby Areas: $areas');
         Navigator.push(

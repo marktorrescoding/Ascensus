@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:openbeta/pages/home_page.dart';
-import 'package:openbeta/services/api_service.dart';
+import 'package:openbeta/services/test_connection_service.dart';
+import 'package:graphql/client.dart';
 
 void main() {
   runApp(MyApp());
-  ApiService().testConnection(); // call the testConnection method
+
+  // Initialize HttpLink with your GraphQL endpoint.
+  final HttpLink httpLink = HttpLink('https://api.openbeta.io/graphql');
+  TestConnectionService(httpLink).testConnection(); // call the testConnection method
 }
 
 class MyApp extends StatelessWidget {
@@ -13,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Climbing App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: HomePage(),
     );
