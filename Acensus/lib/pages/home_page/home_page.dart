@@ -13,8 +13,13 @@ import 'widgets/search_bar.dart';
 import 'widgets/nearby_areas_button.dart';
 import 'widgets/nearby_areas.dart';
 import 'widgets/app_bar/app_bar.dart';
+import 'package:openbeta/services/download_service.dart';
 
 class HomePage extends StatefulWidget {
+  final DownloadService downloadService; // Add this line
+
+  HomePage({required this.downloadService}); // Add this line
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -71,7 +76,10 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => NearbyAreasPage(areas: areas),
+            builder: (context) => NearbyAreasPage(
+              areas: areas,
+              downloadService: widget.downloadService, // Pass the DownloadService instance
+            ),
           ),
         );
       } else {

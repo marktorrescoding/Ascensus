@@ -22,6 +22,8 @@ class AreaService {
             maxDistance: 10000
           ) {
             crags {
+              id
+              uuid
               areaName
               totalClimbs
               aggregate {
@@ -69,7 +71,9 @@ class AreaService {
       List<String> areaNames = crags.map<String>((crag) {
         final String areaName = crag['areaName'] as String;
         final int totalClimbs = crag['totalClimbs'] as int;
-        return '$areaName ($totalClimbs climbs)';
+        final String id = crag['id'] as String;
+        final String uuid = crag['uuid'] as String;
+        return '$areaName ($totalClimbs climbs) - ID: $id, UUID: $uuid';
       }).toList();
       return areaNames;
     }
