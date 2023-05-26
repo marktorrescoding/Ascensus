@@ -59,12 +59,12 @@ class AreaService {
     final QueryResult result = await client.query(options);
 
     if (result.hasException) {
-      print(result.exception.toString());
+      print('GraphQL Error: ${result.exception.toString()}');
       throw Exception('Failed to load nearby areas');
     }
 
-    final List<dynamic> cragsNear = result.data?['cragsNear'] as List<dynamic>;
-    if (cragsNear.isNotEmpty) {
+    final List<dynamic>? cragsNear = result.data?['cragsNear'] as List<dynamic>?;
+    if (cragsNear != null && cragsNear.isNotEmpty) {
       final List<dynamic> crags = cragsNear[0]['crags'] as List<dynamic>;
       List<String> areaNames = crags.map<String>((crag) {
         final String areaName = crag['areaName'] as String;
