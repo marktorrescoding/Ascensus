@@ -8,7 +8,12 @@ import 'package:openbeta/services/get_user_location_service.dart';
 import 'package:openbeta/pages/route_details_page.dart';
 import 'package:openbeta/pages/nearby_areas_page.dart';
 import 'package:graphql/client.dart';
-import 'package:openbeta/pages/home_page/search_bar.dart';
+
+import 'widgets/search_bar.dart';
+import 'widgets/button.dart';
+import 'widgets/nearby_areas.dart';
+import 'widgets/app_bar/app_bar.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,8 +27,8 @@ class _HomePageState extends State<HomePage> {
   late TestConnectionService testConnectionService;
   final LocalDatabase localDatabase = LocalDatabase.instance;
   final LocationService locationService = LocationService();
-  final TextEditingController _apiController = TextEditingController();
-  final TextEditingController _localController = TextEditingController();
+  late TextEditingController _apiController;
+  late TextEditingController _localController;
   Future<List<ClimbingRoute>>? _apiSearchResult;
   Future<List<ClimbingRoute>>? _localSearchResult;
   List<String>? _nearbyAreas;
@@ -35,6 +40,12 @@ class _HomePageState extends State<HomePage> {
     climbService = ClimbService(httpLink);
     areaService = AreaService(httpLink);
     testConnectionService = TestConnectionService(httpLink);
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
+    _apiController = TextEditingController();
+    _localController = TextEditingController();
   }
 
   void _searchApi() {
@@ -107,9 +118,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('ASCENSUS'),
-      ),
+      appBar: AppBarWidget(),
       body: Column(
         children: [
           CustomSearchBar(
@@ -141,42 +150,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class Button extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-
-  const Button({
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(text),
-      ),
-    );
-  }
-}
-
-class NearbyAreas extends StatelessWidget {
-  final List<String> areas;
-
-  const NearbyAreas({required this.areas});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        for (final area in areas) Text(area),
-      ],
     );
   }
 }
