@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openbeta/pages/settings_page.dart'; // Import the SettingsPage
 
 class SettingsButton extends StatelessWidget {
   @override
@@ -6,7 +7,12 @@ class SettingsButton extends StatelessWidget {
     return IconButton(
       icon: Image.asset('assets/icons/gear.png'), // Use the custom icon
       onPressed: () {
-        // Handle settings button press
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsPage(), // Navigate to the SettingsPage
+          ),
+        );
       },
     );
   }

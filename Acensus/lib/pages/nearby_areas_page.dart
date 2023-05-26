@@ -31,8 +31,12 @@ class _NearbyAreasPageState extends State<NearbyAreasPage> {
       body: ListView.builder(
         itemCount: widget.areas.length,
         itemBuilder: (context, index) {
+          final area = widget.areas[index];
+          final areaName = area.substring(0, area.indexOf('(')).trim();
+          final totalClimbs = area.substring(area.indexOf('(') + 1, area.indexOf(' climbs)')).trim();
           return ListTile(
-            title: Text(widget.areas[index]),
+            title: Text(areaName),
+            subtitle: Text('$totalClimbs climbs'),
           );
         },
       ),

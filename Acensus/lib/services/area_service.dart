@@ -15,18 +15,19 @@ class AreaService {
   Future<List<String>> getNearbyAreas(double lat, double lng) async {
     final QueryOptions options = QueryOptions(
       document: gql('''
-      query GetNearbyAreas(\$lat: Float!, \$lng: Float!) {
-        cragsNear(
-          lnglat: { lat: \$lat, lng: \$lng }
-          includeCrags: true
-          maxDistance: 15000
-        ) {
-          crags {
-            areaName
+        query GetNearbyAreas(\$lat: Float!, \$lng: Float!) {
+          cragsNear(
+            lnglat: { lat: \$lat, lng: \$lng }
+            includeCrags: true
+            maxDistance: 15000
+          ) {
+            crags {
+              areaName
+              totalClimbs
+            }
           }
         }
-      }
-    '''),
+      '''),
       variables: <String, dynamic>{
         'lat': lat,
         'lng': lng,
@@ -44,7 +45,7 @@ class AreaService {
     if (cragsNear.isNotEmpty) {
       final List<dynamic> crags = cragsNear[0]['crags'] as List<dynamic>;
       List<String> areaNames = crags
-          .map<String>((crag) => crag['areaName'] as String)
+          .map<String>((crag) => '${crag['areaName']} (${crag['totalClimbs']} climbs)')
           .toList();
       return areaNames;
     }

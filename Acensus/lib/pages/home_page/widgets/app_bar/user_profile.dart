@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openbeta/pages/profile_page.dart'; // Import the UserProfilePage
 
 class UserProfile extends StatelessWidget {
   @override
@@ -9,7 +10,12 @@ class UserProfile extends StatelessWidget {
       child: IconButton(
         icon: Image.asset('assets/icons/climbing_helmet.png'), // Use the custom icon image
         onPressed: () {
-          // Handle user profile button press
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UserProfilePage(), // Navigate to the UserProfilePage
+            ),
+          );
         },
       ),
     );

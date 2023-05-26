@@ -10,10 +10,9 @@ import 'package:openbeta/pages/nearby_areas_page.dart';
 import 'package:graphql/client.dart';
 
 import 'widgets/search_bar.dart';
-import 'widgets/button.dart';
+import 'widgets/nearby_areas_button.dart';
 import 'widgets/nearby_areas.dart';
 import 'widgets/app_bar/app_bar.dart';
-
 
 class HomePage extends StatefulWidget {
   @override
@@ -103,8 +102,14 @@ class _HomePageState extends State<HomePage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(snapshot.data![index].name),
-                  Text('${snapshot.data![index].yds}'),
+                  Text(
+                    snapshot.data![index].name,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Text(
+                    '${snapshot.data![index].yds}',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ],
               ),
             ),
@@ -134,6 +139,12 @@ class _HomePageState extends State<HomePage> {
           Button(
             text: 'Areas Near Me',
             onPressed: _getNearbyAreas,
+            gradient: LinearGradient(
+              colors: [Color(0xFF00BFA5), Color(0xFF00ACC1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            textColor: Colors.white,
           ),
           if (_nearbyAreas != null) NearbyAreas(areas: _nearbyAreas!),
           Expanded(
