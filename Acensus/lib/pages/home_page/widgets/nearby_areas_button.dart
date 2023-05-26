@@ -4,13 +4,13 @@ class Button extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final Gradient? gradient;
-  final Color? textColor; // Add the textColor parameter
+  final Color? textColor;
 
   const Button({
     required this.text,
     required this.onPressed,
     this.gradient,
-    this.textColor, // Initialize the textColor parameter
+    this.textColor,
   });
 
   @override
@@ -30,7 +30,7 @@ class Button extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: textColor ?? Colors.black, // Use the provided textColor or default to black
+            color: textColor ?? Theme.of(context).textTheme.button?.color, // Use the provided textColor or default to the theme's button color
           ),
         ),
       ),

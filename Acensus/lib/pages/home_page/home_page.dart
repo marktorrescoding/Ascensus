@@ -5,7 +5,6 @@ import 'package:openbeta/services/area_service.dart';
 import 'package:openbeta/services/test_connection_service.dart';
 import 'package:openbeta/services/local_database_service.dart';
 import 'package:openbeta/services/get_user_location_service.dart';
-import 'package:openbeta/pages/route_details_page.dart';
 import 'package:openbeta/pages/nearby_areas_page/nearby_areas_page.dart';
 import 'package:graphql/client.dart';
 
@@ -13,13 +12,9 @@ import 'widgets/search_bar.dart';
 import 'widgets/nearby_areas_button.dart';
 import 'widgets/nearby_areas.dart';
 import 'widgets/app_bar/app_bar.dart';
-import 'package:openbeta/services/download_service.dart';
+import 'widgets/climbing_routes_list_view.dart';
 
 class HomePage extends StatefulWidget {
-  final DownloadService downloadService; // Add this line
-
-  HomePage({required this.downloadService}); // Add this line
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -40,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Initialize HTTP link and services
     httpLink = HttpLink('https://api.openbeta.io/graphql');
     climbService = ClimbService(httpLink);
     areaService = AreaService(httpLink);
@@ -48,12 +44,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _initializeControllers() {
+    // Initialize text controllers for search input
     _apiController = TextEditingController();
     _localController = TextEditingController();
   }
 
   void _searchApi() {
     setState(() {
+      // Perform API search and update the search result
       _apiSearchResult = climbService.getClimbsForArea(_apiController.text);
     });
     _apiController.clear();
@@ -61,6 +59,7 @@ class _HomePageState extends State<HomePage> {
 
   void _searchLocal() {
     setState(() {
+      // Perform local database search and update the search result
       _localSearchResult = localDatabase.searchRoutes(_localController.text);
     });
     _localController.clear();
@@ -69,17 +68,16 @@ class _HomePageState extends State<HomePage> {
   void _getNearbyAreas() async {
     final location = await locationService.getCurrentLocation();
     if (location != null) {
+      // Get user location and retrieve nearby areas
       print('User Location: Latitude=${location.latitude}, Longitude=${location.longitude}');
       final areas = await areaService.getNearbyAreas(location.latitude, location.longitude);
       if (areas != null && areas.isNotEmpty) {
+        // If nearby areas are found, navigate to the NearbyAreasPage
         print('Nearby Areas: $areas');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => NearbyAreasPage(
-              areas: areas,
-              downloadService: widget.downloadService, // Pass the DownloadService instance
-            ),
+            builder: (context) => NearbyAreasPage(areas: areas),
           ),
         );
       } else {
@@ -88,83 +86,41 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildListView(BuildContext context, AsyncSnapshot<List<ClimbingRoute>> snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return Center(child: CircularProgressIndicator());
-    } else if (snapshot.hasError) {
-      return Center(child: Text('Failed to load climbs'));
-    } else if (snapshot.hasData) {
-      return ListView.builder(
-        itemCount: snapshot.data!.length,
-        itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RouteDetailsPage(route: snapshot.data![index]),
-                ),
-              );
-            },
-            child: ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    snapshot.data![index].name,
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  Text(
-                    '${snapshot.data![index].yds}',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-    return SizedBox.shrink(); // Return an empty widget when there's no data yet
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWidget(),
+      appBar: AppBarWidget(), // Custom AppBar
       body: Column(
         children: [
           CustomSearchBar(
-            labelText: 'Search API',
+            labelText: 'Search API', // Custom search bar for API search
             controller: _apiController,
             onPressed: _searchApi,
           ),
           CustomSearchBar(
-            labelText: 'Search Local',
+            labelText: 'Search Local', // Custom search bar for local search
             controller: _localController,
             onPressed: _searchLocal,
           ),
           Button(
-            text: 'Areas Near Me',
+            text: 'Areas Near Me', // Button to retrieve and display nearby areas
             onPressed: _getNearbyAreas,
-            gradient: LinearGradient(
-              colors: [Color(0xFF00BFA5), Color(0xFF00ACC1)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            textColor: Colors.white,
           ),
-          if (_nearbyAreas != null) NearbyAreas(areas: _nearbyAreas!),
+          if (_nearbyAreas != null) NearbyAreas(areas: _nearbyAreas!), // Display nearby areas if available
           Expanded(
             child: FutureBuilder<List<ClimbingRoute>>(
               future: _apiSearchResult,
-              builder: _buildListView,
+              builder: (context, snapshot) {
+                return ClimbingRoutesListView(snapshot: snapshot); // Custom ListView for climbing routes
+              },
             ),
           ),
           Expanded(
             child: FutureBuilder<List<ClimbingRoute>>(
               future: _localSearchResult,
-              builder: _buildListView,
+              builder: (context, snapshot) {
+                return ClimbingRoutesListView(snapshot: snapshot); // Custom ListView for climbing routes
+              },
             ),
           ),
         ],
