@@ -6,7 +6,7 @@ import 'package:openbeta/services/test_connection_service.dart';
 import 'package:openbeta/services/local_database_service.dart';
 import 'package:openbeta/services/get_user_location_service.dart';
 import 'package:openbeta/pages/route_details_page.dart';
-import 'package:openbeta/pages/nearby_areas_page.dart';
+import 'package:openbeta/pages/nearby_areas_page/nearby_areas_page.dart';
 import 'package:graphql/client.dart';
 
 import 'widgets/search_bar.dart';

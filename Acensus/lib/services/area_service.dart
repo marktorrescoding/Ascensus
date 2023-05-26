@@ -19,11 +19,33 @@ class AreaService {
           cragsNear(
             lnglat: { lat: \$lat, lng: \$lng }
             includeCrags: true
-            maxDistance: 15000
+            maxDistance: 10000
           ) {
             crags {
               areaName
               totalClimbs
+              aggregate {
+                byDiscipline {
+                  sport {
+                    total
+                  }
+                  tr {
+                    total
+                  }
+                  trad {
+                    total
+                  }
+                  boulder {
+                    total
+                  }
+                  bouldering {
+                    total
+                  }
+                  mixed {
+                    total
+                  }
+                }
+              }
             }
           }
         }
@@ -44,9 +66,11 @@ class AreaService {
     final List<dynamic> cragsNear = result.data?['cragsNear'] as List<dynamic>;
     if (cragsNear.isNotEmpty) {
       final List<dynamic> crags = cragsNear[0]['crags'] as List<dynamic>;
-      List<String> areaNames = crags
-          .map<String>((crag) => '${crag['areaName']} (${crag['totalClimbs']} climbs)')
-          .toList();
+      List<String> areaNames = crags.map<String>((crag) {
+        final String areaName = crag['areaName'] as String;
+        final int totalClimbs = crag['totalClimbs'] as int;
+        return '$areaName ($totalClimbs climbs)';
+      }).toList();
       return areaNames;
     }
 
